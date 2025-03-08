@@ -3,14 +3,15 @@
     "publishingInformation": {
       "locales": {
         "en-US": {
-          "summary": "Sample Short Description",
+          "summary": "A voice tool for Obsidian",
           "examplePhrases": [
-            "Alexa open hello world",
-            "hello",
-            "help"
+            "Alexa open obsidian",
+            "open my vault",
+            "add a note",
+            "add daily text"
           ],
-          "name": "obsidian_rest",
-          "description": "Sample Full Description"
+          "name": "obsidian_voice",
+          "description": "A voice tool for Obsidian"
         }
       },
       "isAvailableWorldwide": true,

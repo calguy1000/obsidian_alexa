@@ -1,8 +1,25 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "hello world",
+            "invocationName": "obsidian",
             "intents": [
+                {
+                    "name": "AddDailyTextIntent",
+                    "slots": [
+                        {
+                            "name": "text",
+                            "type": "AMAZON.text",
+                            "elicitationRequired": true
+                        }
+                    ],
+                    "samples": [
+                        "add text",
+                        "add daily text",
+                        "add daily",
+                        "add {text}",
+                        "note"
+                    ]
+                },
                 {
                     "name": "AMAZON.CancelIntent",
                     "samples": []
@@ -16,16 +33,19 @@
                     "samples": []
                 },
                 {
-                    "name": "HelloWorldIntent",
-                    "slots": [],
+                    "name": "AddDailyTextIntent",
+                    "slots": [
+                        {
+                            "name": "text",
+                            "type": "AMAZON.text"
+                        }
+                    ],
                     "samples": [
-                        "hello",
-                        "how are you",
-                        "say hi world",
-                        "say hi",
-                        "hi",
-                        "say hello world",
-                        "say hello"
+                        "add text",
+                        "add daily text",
+                        "add daily",
+                        "add {text}",
+                        "note"
                     ]
                 },
                 {
@@ -36,5 +56,4 @@
             "types": []
         }
     }
-  }
-  
+}
