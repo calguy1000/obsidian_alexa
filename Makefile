@@ -1,24 +1,27 @@
 NCONTAINERS := $(shell docker ps | grep alexa-skill-dev | wc -l)
 
-shell: run
+shell: start
 	docker exec -it --user worker alexa-skill-dev bash --login
 
-root: run
+root: start
 	docker exec run -it alexa-skill-dev bash --login
 
 build:
 	docker compose build
 
-run:
+start:
 ifeq ($(NCONTAINERS), 0)
 	docker compose up -d
 endif
 
-deploy:
-	docker compose exec -it --user worker alexa-skill-dev ask deploy
+deploy: start
+	docker exec -it --user worker alexa-skill-dev ask deploy
 
-dialog: run
-	docker compose exec -it --user worker alexa-skill-dev ask dialog --locale en-US
+run:	start
+	docker exec -it --user worker alexa-skill-dev ask run
+
+dialog: start 
+	docker exec -it --user worker alexa-skill-dev ask dialog --locale en-US
 
 down stop:
 	docker compose down

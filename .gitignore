@@ -1,4 +1,5 @@
 app/.cache
+app/lambda/__pycache__
 ask_config/lambda
 aws_config/credentials
 ask_config/cli_config
