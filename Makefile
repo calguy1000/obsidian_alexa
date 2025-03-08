@@ -4,7 +4,7 @@ shell: start
 	docker exec -it --user worker alexa-skill-dev bash --login
 
 root: start
-	docker exec run -it alexa-skill-dev bash --login
+	docker exec -it --user root alexa-skill-dev bash --login
 
 build:
 	docker compose build

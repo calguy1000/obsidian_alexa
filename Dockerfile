@@ -33,5 +33,8 @@ RUN groupadd -g 1000 worker && useradd -u 1000 -g 1000 worker -d /app -M
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# become the worker user
+USER worker
+
 # Default command
 CMD [ "python" ]

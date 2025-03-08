@@ -4,3 +4,8 @@ ask_config/lambda
 aws_config/credentials
 ask_config/cli_config
 .bash_history
+.env
+app/.dotnet/
+app/.gitconfig
+app/.ssh/
+app/.vscode-server/
