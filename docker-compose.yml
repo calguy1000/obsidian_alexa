@@ -13,3 +13,5 @@ services:
       - AWS_REGION=us-east-1  # Replace with your AWS SES region
     stdin_open: true
     tty: true  # Keep container interactive for CLI usage
+    env_file:
+      - fileName.env  # Load environment variables from a file

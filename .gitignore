@@ -8,4 +8,7 @@ ask_config/cli_config
 app/.dotnet/
 app/.gitconfig
 app/.ssh/
+app/.local/
+app/.devcontainer/
+app/.vscode/
 app/.vscode-server/

@@ -5,6 +5,8 @@
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
 import logging
+import os
+import re
 
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
@@ -16,6 +18,22 @@ from ask_sdk_model import Response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+# Validate OBSIDIAN_REST environment variable
+obsidian_rest = os.getenv("OBSIDIAN_REST")
+if not obsidian_rest or not re.match(r'^https?://', obsidian_rest):
+    # log the error
+    logger.error("The OBSIDIAN_REST environment variable must be a valid HTTP or HTTPS URI")
+    # raise an exception with a generic message
+    raise ValueError("Configuration error 1001")
+
+# Validate OBSIDIAN_REST_API environment variable
+obsidian_rest_api = os.getenv("OBSIDIAN_REST_API")
+if not obsidian_rest_api or not re.match(r'^[A-Fa-f0-9]+$|^[A-Za-z0-9+/=]+$', obsidian_rest_api):
+    # log the error
+    logger.error("The OBSIDIAN_REST_API environment variable must be a valid API key")
+    # raise an exception with a generic message
+    raise ValueError("Configuration error 1002")
 
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
@@ -142,7 +160,8 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         # type: (HandlerInput, Exception) -> Response
         logger.error(exception, exc_info=True)
 
-        speak_output = "Sorry, I had trouble doing what you asked. Please try again."
+        # Capture the initial user input
+        speak_output = f"Sorry, I had trouble doing what you asked.  Please try again.  Or you can ask for help."
 
         return (
             handler_input.response_builder
@@ -160,7 +179,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         # Capture the user's utterance
-        user_utterance = handler_input.request_envelope.request.intent.slots.get("text", {}).get("value", "")
+        user_utterance = handler_input.request_envelope.request.intent.slots.get("text").resolutions.resolutions_per_authority[0].values[0].value.name
         speak_output = f"Sorry, I didn't understand that. You said: {user_utterance}. Please try again."
 
         return (
@@ -181,8 +200,8 @@ sb.add_request_handler(AddDailyTextIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 sb.add_request_handler(FallbackIntentHandler())
+sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 sb.add_exception_handler(CatchAllExceptionHandler())
 
 handler = sb.lambda_handler()

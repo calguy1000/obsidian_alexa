@@ -18,7 +18,7 @@ deploy: start
 	docker exec -it --user worker alexa-skill-dev ask deploy
 
 run:	start
-	docker exec -it --user worker alexa-skill-dev ask run
+	docker exec -it --user worker alexa-skill-dev ask run --wait-for-attach --debug-port 5000
 
 dialog: start 
 	docker exec -it --user worker alexa-skill-dev ask dialog --locale en-US
