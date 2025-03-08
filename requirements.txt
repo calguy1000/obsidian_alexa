@@ -1,0 +1,10 @@
+ask-sdk
+ask-sdk-core
+ask-sdk-model
+ask-sdk-runtime
+ask-sdk-dynamodb-persistence-adapter
+ask-sdk-local-debug
+flask
+requests
+jinja2
+boto3

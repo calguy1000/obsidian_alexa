@@ -1,0 +1,15 @@
+services:
+  alexa-skill-dev:
+    build: .
+    container_name: alexa-skill-dev
+    volumes:
+      - ./app:/app  # Mount the current directory to /app in the container
+      - ./ask_config:/app/.ask
+      - ./aws_config:/app/.aws
+    working_dir: /app
+    environment:
+      - AWS_PROFILE=default  # Use AWS credentials from your local system
+      - PYTHONUNBUFFERED=1
+      - AWS_REGION=us-east-1  # Replace with your AWS SES region
+    stdin_open: true
+    tty: true  # Keep container interactive for CLI usage
