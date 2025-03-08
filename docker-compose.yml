@@ -1,7 +1,7 @@
 services:
-  alexa-skill-dev:
+  app:
     build: .
-    container_name: alexa-skill-dev
+    container_name: obsidian_voice
     volumes:
       - ./app:/app  # Mount the current directory to /app in the container
       - ./ask_config:/app/.ask

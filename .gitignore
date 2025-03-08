@@ -12,3 +12,4 @@ app/.local/
 app/.devcontainer/
 app/.vscode/
 app/.vscode-server/
+app/.npm

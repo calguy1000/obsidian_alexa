@@ -1,10 +1,10 @@
-NCONTAINERS := $(shell docker ps | grep alexa-skill-dev | wc -l)
+NCONTAINERS := $(shell docker ps | grep obsidian_voice | wc -l)
 
 shell: start
-	docker exec -it --user worker alexa-skill-dev bash --login
+	docker exec -it --user worker obsidian_voice bash --login
 
 root: start
-	docker exec -it --user root alexa-skill-dev bash --login
+	docker exec -it --user root obsidian_voice bash --login
 
 build:
 	docker compose build
@@ -15,20 +15,20 @@ ifeq ($(NCONTAINERS), 0)
 endif
 
 deploy: start
-	docker exec -it --user worker alexa-skill-dev ask deploy
+	docker exec -it --user worker obsidian_voice ask deploy
 
 run:	start
-	docker exec -it --user worker alexa-skill-dev ask run --wait-for-attach --debug-port 5000
+	docker exec -it --user worker obsidian_voice ask run --wait-for-attach --debug-port 5000
 
 dialog: start 
-	docker exec -it --user worker alexa-skill-dev ask dialog --locale en-US
+	docker exec -it --user worker obsidian_voice ask dialog --locale en-US
 
 down stop:
 	docker compose down
 
 clean: stop
 	docker compose down
-	_list=`docker ps -a | grep alexa-skill-dev | grep Exited | cut -d ' ' -f1`
+	_list=`docker ps -a | grep obsidian_voice | grep Exited | cut -d ' ' -f1`
 	if [ "$$_list" != "" ]; then docker rm $_list; fi
 
 rebuild: clean build

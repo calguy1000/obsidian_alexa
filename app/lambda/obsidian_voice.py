@@ -7,6 +7,12 @@
 import logging
 import os
 import re
+import requests
+import time
+import json
+import hashlib
+import random
+import string
 
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
@@ -27,24 +33,88 @@ if not obsidian_rest or not re.match(r'^https?://', obsidian_rest):
     # raise an exception with a generic message
     raise ValueError("Configuration error 1001")
 
-# Validate OBSIDIAN_REST_API environment variable
-obsidian_rest_api = os.getenv("OBSIDIAN_REST_API")
-if not obsidian_rest_api or not re.match(r'^[A-Fa-f0-9]+$|^[A-Za-z0-9+/=]+$', obsidian_rest_api):
+# Validate OBSIDIAN_REST_APIKEY environment variable
+obsidian_rest_apikey = os.getenv("OBSIDIAN_REST_APIKEY")
+if not obsidian_rest_apikey or not re.match(r'^[A-Fa-f0-9]+$|^[A-Za-z0-9+/=]+$', obsidian_rest_apikey):
     # log the error
-    logger.error("The OBSIDIAN_REST_API environment variable must be a valid API key")
+    logger.error("The OBSIDIAN_REST_APIKEY environment variable must be a valid API key")
     # raise an exception with a generic message
     raise ValueError("Configuration error 1002")
+
+def generate_cache_filename(api_key):
+    """Generate an obfuscated cache filename using the API key and a hash of the current filename and path."""
+    current_file_path = os.path.abspath(__file__)
+    hash_key = hashlib.sha256((api_key + current_file_path).encode()).hexdigest()
+    return f"/tmp/{hash_key}.json"
+
+TOKEN_CACHE_PATH = generate_cache_filename(obsidian_rest_apikey)
+TOKEN_CACHE_EXPIRY = 3600  # 1 hour in seconds
+
+def get_jwt_token(api_key, rest_url):
+    """Send a PUT request to the Obsidian URL /auth method to get a JWT token."""
+    headers = {
+        'x-api-key': api_key
+    }
+    try:
+        response = requests.put(f"{rest_url}/auth", headers=headers)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+    except requests.exceptions.HTTPError as http_err:
+        if response.status_code == 403:
+            logger.error("Forbidden: Invalid API key")
+            raise ValueError("Configuration error 1003: Forbidden")
+        elif response.status_code == 404:
+            logger.error("Not Found: The requested resource could not be found")
+            raise ValueError("Configuration error 1004: Not Found")
+        else:
+            logger.error(f"HTTP error occurred: {http_err}")
+            raise
+    except requests.exceptions.RequestException as err:
+        logger.error(f"Error connecting to the service: {err}")
+        raise ValueError("Configuration error 1005: Connection error")
+
+    token = response.json().get('token')
+    if not token:
+        raise ValueError("No token found in the response")
+    return token
+
+def get_cached_jwt_token(api_key, rest_url):
+    """Wrapper for get_jwt_token to cache the token in the /tmp directory for up to one hour."""
+    try:
+        # Check if the cache file exists and is not expired
+        if os.path.exists(TOKEN_CACHE_PATH):
+            with open(TOKEN_CACHE_PATH, 'r') as cache_file:
+                cache_data = json.load(cache_file)
+                if time.time() - cache_data['timestamp'] < TOKEN_CACHE_EXPIRY:
+                    return cache_data['token']
+    except Exception as e:
+        logger.error(f"Error reading token cache: {e}")
+
+    # If cache is expired or does not exist, get a new token
+    token = get_jwt_token(api_key, rest_url)
+    try:
+        # Save the new token to the cache file
+        with open(TOKEN_CACHE_PATH, 'w') as cache_file:
+            json.dump({'token': token, 'timestamp': time.time()}, cache_file)
+    except Exception as e:
+        logger.error(f"Error writing token cache: {e}")
+
+    return token
 
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Welcome. To add text to the daily note say: \"Add to Daily\". for help you can say or Help. Which would you like to try?"
+        try:
+            # Ensure there is a valid JWT token
+            token = get_cached_jwt_token(obsidian_rest_apikey, obsidian_rest)
+            speak_output = "Welcome. To add text to the daily note say: \"Add to Daily\". for help you can say or Help. Which would you like to try?"
+        except Exception as e:
+            logger.error(f"Error obtaining JWT token: {e}")
+            speak_output = "Sorry, there was an error with the authentication service. Please try again later."
 
         return (
             handler_input.response_builder
