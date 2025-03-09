@@ -119,7 +119,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return (
             handler_input.response_builder
                 .speak(speak_output)
-                .ask(speak_output)
+                .ask("What would you like to do?")  # .ask() is used to keep the session open for the user to respond
                 .response
         )
 
@@ -135,6 +135,7 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
         # get the slot text
         slots = handler_input.request_envelope.request.intent.slots
         text = slots['text'].value
+        ask_str = None
 
         if text is None:
             return (
@@ -164,6 +165,7 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
             response = requests.patch(f"{obsidian_rest}/api/vault/daily", headers=headers, json=data)
             response.raise_for_status()  # Raise an exception for HTTP errors
             speak_output = "Got it. I've added the text to your daily note."
+            ask_str = "What else would you like to do next?"
         except requests.exceptions.HTTPError as http_err:
             logger.error(f"HTTP error occurred: {http_err}")
             speak_output = "Sorry, there was an error with the service. Please try again later."
@@ -171,12 +173,10 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
             logger.error(f"Error obtaining JWT token: {e}")
             speak_output = "Sorry, there was an error with the authentication service. Please try again later."
         
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                # .ask("add a reprompt if you want to keep the session open for the user to respond")
-                .response
-        )
+        res = handler_input.response_builder.speak(speak_output)
+        if ask_str:
+            res.ask(ask_str)
+        return res.response
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -226,7 +226,11 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
 
         # Any cleanup logic goes here.
 
-        return handler_input.response_builder.response
+        return (
+            handler_input.response_builder
+                .set_should_end_session(True)
+                .response
+        )
 
 class IntentReflectorHandler(AbstractRequestHandler):
     """The intent reflector is used for interaction model testing and debugging.
