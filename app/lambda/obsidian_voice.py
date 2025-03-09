@@ -114,7 +114,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
             speak_output = "Welcome. To add text to the daily note say: \"Add to Daily\". for help you can say or Help. Which would you like to try?"
         except Exception as e:
             logger.error(f"Error obtaining JWT token: {e}")
-            speak_output = "Sorry, there was an error with the authentication service. Please try again later."
+            speak_output = "Sorry, there was an error with the vault service. Please try again later."
 
         return (
             handler_input.response_builder
@@ -125,18 +125,52 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
 
 class AddDailyTextIntentHandler(AbstractRequestHandler):
-    """Handler for Hello World Intent."""
+    """Handler for Add Daily Text Intent."""
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("AddDailyIntent")(handler_input)
+        return ask_utils.is_intent_name("AddDailyTextIntent")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         # get the slot text
         slots = handler_input.request_envelope.request.intent.slots
         text = slots['text'].value
-        speak_output = "Woot, we can now add the text to the daily note!"
 
+        if text is None:
+            return (
+                handler_input.response_builder
+                    .speak("Sorry, I didn't catch that. Please try again.")
+                    .ask("What would you like to add?")
+                    .response
+            )
+
+        if len(text.encode('utf-8')) > 1024:
+            return (
+                handler_input.response_builder
+                    .speak("The text is too long. Please provide shorter text.")
+                    .ask("What would you like to add?")
+                    .response
+            )
+
+        try:
+            # Ensure there is a valid JWT token
+            token = get_cached_jwt_token(obsidian_rest_apikey, obsidian_rest)
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            data = {"content": text, "withtime": True}
+
+            response = requests.patch(f"{obsidian_rest}/api/vault/daily", headers=headers, json=data)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            speak_output = "Got it. I've added the text to your daily note."
+        except requests.exceptions.HTTPError as http_err:
+            logger.error(f"HTTP error occurred: {http_err}")
+            speak_output = "Sorry, there was an error with the service. Please try again later."
+        except Exception as e:
+            logger.error(f"Error obtaining JWT token: {e}")
+            speak_output = "Sorry, there was an error with the authentication service. Please try again later."
+        
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -153,7 +187,7 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "We have to fill out the help text?"
+        speak_output = "You can say 'Add to Daily' to add text to your daily note. How can I assist you further?"
 
         return (
             handler_input.response_builder
@@ -249,8 +283,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         # Capture the user's utterance
-        user_utterance = handler_input.request_envelope.request.intent.slots.get("text").resolutions.resolutions_per_authority[0].values[0].value.name
-        speak_output = f"Sorry, I didn't understand that. You said: {user_utterance}. Please try again."
+        speak_output = f"Sorry, I didn't understand that. Please try again."
 
         return (
             handler_input.response_builder

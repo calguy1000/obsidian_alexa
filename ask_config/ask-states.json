@@ -8,8 +8,8 @@
             "default": {
               "lambda": {
                 "arn": "arn:aws:lambda:us-east-1:257394458811:function:ask-obsidianrest-default-default-1741390948541",
-                "lastModified": "2025-03-09T00:03:02.000+0000",
-                "revisionId": "99fd7a6a-8c00-4877-8142-2de2123e06d0"
+                "lastModified": "2025-03-09T15:43:23.000+0000",
+                "revisionId": "7c7af07a-860b-48c3-a4cf-749243c221b2"
               },
               "iamRole": "arn:aws:iam::257394458811:role/ask-lambda-obsidianrest-1741390947616"
             }
@@ -26,9 +26,9 @@
       "skillId": "amzn1.ask.skill.b9cade60-e432-43e6-bf53-61e510515630",
       "code": {
         "default": {
-          "lastDeployHash": "hCJQvxLzoLj8GoDeOSn9HxhnUck="
+          "lastDeployHash": "9STp1TO76aA0d2zB45SxkoP65Kw="
         },
-        "lastDeployTimestamp": "2025-03-09T00:03:03.762Z"
+        "lastDeployTimestamp": "2025-03-09T15:43:24.877Z"
       }
     }
   }
