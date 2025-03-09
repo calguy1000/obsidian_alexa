@@ -8,16 +8,14 @@
                     "slots": [
                         {
                             "name": "text",
-                            "type": "AMAZON.SearchQuery",
-                            "elicitationRequired": true
+                            "type": "AMAZON.SearchQuery"
                         }
                     ],
                     "samples": [
-                        "add text",
-                        "add daily text",
-                        "add daily",
                         "add {text}",
-                        "note"
+                        "note {text}",
+                        "new note",
+                        "note this"
                     ]
                 },
                 {
@@ -42,6 +40,38 @@
                 }
             ],
             "types": []
-        }
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "AddDailyTextIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "text",
+                            "type": "AMAZON.SearchQuery",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit-Slot-Text"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "delegationStrategy": "ALWAYS"
+        },
+        "prompts": [
+            {
+                "id": "Elicit-Slot-Text",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What would you like to note?"
+                    }
+                ]
+            }
+        ]
     }
 }
