@@ -187,6 +187,58 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
         return res.response
 
 
+class UndoLastDailyAddIntentHandler(AbstractRequestHandler):
+    """Handler for Undo Last Daily Add Intent."""
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("UndoLastDailyAddIntent")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        session_attributes = handler_input.attributes_manager.session_attributes
+        last_text = session_attributes.get('daily_text')
+        ask_str = None
+
+        if not last_text:
+            speak_output = "There is no recent addition to undo."
+            return (
+                handler_input.response_builder
+                    .speak(speak_output)
+                    .ask("What would you like to do next?")
+                    .response
+            )
+
+        try:
+            # Ensure there is a valid JWT token
+            token = get_cached_jwt_token(obsidian_rest_apikey, obsidian_rest)
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json'
+            }
+            data = {"content": last_text, "withtime": True, "undo": True}
+
+            response = requests.patch(f"{obsidian_rest}/api/vault/daily", headers=headers, json=data)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            speak_output = "Got it. I've undone the last addition to your daily note."
+            ask_str = "What else would you like to do?"
+        except requests.exceptions.HTTPError as http_err:
+            logger.error(f"HTTP error occurred: {http_err}")
+            speak_output = "Sorry, there was an error with the service. Please try again later."
+        except Exception as e:
+            logger.error(f"Error obtaining JWT token: {e}")
+            speak_output = "Sorry, there was an error with the authentication service. Please try again later."
+
+        # Clear the last added text from session attributes
+        session_attributes.pop('daily_text', None)
+        handler_input.attributes_manager.session_attributes = session_attributes
+        
+        res = handler_input.response_builder.speak(speak_output)
+        if ask_str:
+            res.ask(ask_str)
+        
+        return res.response
+
+
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
     def can_handle(self, handler_input):
@@ -317,6 +369,7 @@ sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 sb.add_request_handler(FallbackIntentHandler())
+sb.add_request_handler(UndoLastDailyAddIntentHandler())
 sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 sb.add_exception_handler(CatchAllExceptionHandler())
 

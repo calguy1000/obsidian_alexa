@@ -8,8 +8,8 @@
             "default": {
               "lambda": {
                 "arn": "arn:aws:lambda:us-east-1:257394458811:function:ask-obsidianrest-default-default-1741390948541",
-                "lastModified": "2025-03-09T15:43:23.000+0000",
-                "revisionId": "7c7af07a-860b-48c3-a4cf-749243c221b2"
+                "lastModified": "2025-03-09T20:36:04.000+0000",
+                "revisionId": "94eb6da9-435b-4761-a6cc-52e5b55bb421"
               },
               "iamRole": "arn:aws:iam::257394458811:role/ask-lambda-obsidianrest-1741390947616"
             }
@@ -18,17 +18,17 @@
       },
       "deploymentStatus": "COMPLETE",
       "skillMetadata": {
-        "lastImportId": "amzn1.ask-package.import.a62fe4b1-0b00-4f0a-9a3e-06621d0714cd",
-        "lastImportTimestamp": "2025-03-09T00:01:23.506Z",
-        "lastDeployHash": "kFlcA+b+1JHRJfPN4BKQ2abpExE=",
+        "lastImportId": "amzn1.ask-package.import.979cab02-c964-4fcf-bde2-9f363fc81a3e",
+        "lastImportTimestamp": "2025-03-09T20:35:12.684Z",
+        "lastDeployHash": "Qa9NEIYDOE8zJDX0vZ9VjCq0AIU=",
         "lastDeployType": "interaction-model"
       },
       "skillId": "amzn1.ask.skill.b9cade60-e432-43e6-bf53-61e510515630",
       "code": {
         "default": {
-          "lastDeployHash": "9STp1TO76aA0d2zB45SxkoP65Kw="
+          "lastDeployHash": "8ym137DU0D/jQcbbrhGGMzQ7iQI="
         },
-        "lastDeployTimestamp": "2025-03-09T15:43:24.877Z"
+        "lastDeployTimestamp": "2025-03-09T20:36:05.905Z"
       }
     }
   }

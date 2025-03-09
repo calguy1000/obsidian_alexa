@@ -19,6 +19,18 @@
                     ]
                 },
                 {
+                    "name": "UndoLastDailyAddIntent",
+                    "slots": [],
+                    "samples": [
+                        "undo last note",
+                        "delete last note",
+                        "remove last note",
+                        "undo add",
+                        "remove that",
+                        "undo note",                        
+                    ]
+                },
+                {
                     "name": "AMAZON.CancelIntent",
                     "samples": []
                 },
