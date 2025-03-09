@@ -153,6 +153,10 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
                     .response
             )
 
+        # Store the input text in session attributes
+        session_attributes = handler_input.attributes_manager.session_attributes
+        session_attributes['daily_text'] = text
+
         try:
             # Ensure there is a valid JWT token
             token = get_cached_jwt_token(obsidian_rest_apikey, obsidian_rest)
@@ -172,10 +176,14 @@ class AddDailyTextIntentHandler(AbstractRequestHandler):
         except Exception as e:
             logger.error(f"Error obtaining JWT token: {e}")
             speak_output = "Sorry, there was an error with the authentication service. Please try again later."
+
+        # Set the session attributes in the response
+        handler_input.attributes_manager.session_attributes = session_attributes
         
         res = handler_input.response_builder.speak(speak_output)
         if ask_str:
             res.ask(ask_str)
+        
         return res.response
 
 
