@@ -211,6 +211,7 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
         return (
             handler_input.response_builder
                 .speak(speak_output)
+                .should_end_session(True)
                 .response
         )
 
